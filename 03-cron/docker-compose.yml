@@ -1,0 +1,12 @@
+version: '2.2'
+services:
+  web:
+    image: aspendigital/octobercms:latest
+    init: true
+    ports:
+      - 80:80
+    environment:
+      - TZ=${TZ:-America/Denver}
+      - ENABLE_CRON=true
+    volumes:
+      - ./plugins:/var/www/html/plugins

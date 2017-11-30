@@ -1,0 +1,27 @@
+version: '2.2'
+services:
+  web:
+    image: aspendigital/octobercms:latest
+    init: true
+    ports:
+      - 80:80
+    environment:
+      - TZ=${TZ:-America/Denver}
+    volumes:
+      - ./.env:/var/www/html/.env
+      - ./config/docker:/var/www/html/config/docker
+      - ./plugins:/var/www/html/plugins
+      - ./storage/app:/var/www/html/storage/app
+      - ./storage/logs:/var/www/html/storage/logs
+      - ./storage/database.sqlite:/var/www/html/storage/database.sqlite
+      - ./themes:/var/www/html/themes
+
+  cron:
+    image: aspendigital/octobercms:latest
+    restart: always
+    init: true
+    command: [cron, -f]
+    environment:
+      - TZ=${TZ:-America/Denver}
+    volumes_from:
+      - web

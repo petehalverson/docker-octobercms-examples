@@ -1,0 +1,26 @@
+# Must create docker network `docker network create proxynet`
+version: '2.2'
+services:
+  proxy:
+    image: jwilder/nginx-proxy:latest
+    ports:
+      - 80:80
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+    environment:
+      - TZ=${TZ:-America/Denver}
+      - DEFAULT_HOST=domain.tld
+    networks:
+      - proxynet
+
+  octobercms:
+    image: aspendigital/octobercms:latest
+    environment:
+      - TZ=${TZ:-America/Denver}
+      - VIRTUAL_HOST=domain.tld
+    networks:
+      - proxynet
+
+networks:
+  proxynet:
+    external: true

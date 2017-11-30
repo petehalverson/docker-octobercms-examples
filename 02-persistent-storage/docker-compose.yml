@@ -1,0 +1,22 @@
+version: '2.2'
+services:
+  web:
+    image: aspendigital/octobercms:latest
+    init: true
+    ports:
+      - 80:80
+    environment:
+      - TZ=${TZ:-America/Denver}
+    volumes:
+      # A local `.env` is not required but expected if you wish to override config values - see README.md
+      # - ./.env:/var/www/html/.env
+
+      - ./config/docker:/var/www/html/config/docker
+      - ./plugins:/var/www/html/plugins
+      - ./storage/app:/var/www/html/storage/app
+      - ./storage/logs:/var/www/html/storage/logs
+
+      # Uncomment the line below for a persistent local database - see README.md
+      # - ./storage/database.sqlite:/var/www/html/storage/database.sqlite
+
+      - ./themes:/var/www/html/themes

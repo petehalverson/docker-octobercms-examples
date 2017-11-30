@@ -1,0 +1,16 @@
+version: '2.2'
+services:
+  php:
+    image: aspendigital/octobercms:php7.1-fpm
+    volumes:
+      - /var/www/html
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - 80:80
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      # Note: The fastcgi_pass name must match the service name for PHP
+    volumes_from:
+      - php

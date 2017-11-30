@@ -1,0 +1,47 @@
+version: '2.2'
+services:
+  web:
+    image: aspendigital/octobercms:latest
+    init: true
+    ports:
+      - 80:80
+    environment:
+      - TZ=${TZ:-America/Denver}
+    volumes:
+      - ./.env:/var/www/html/.env
+      - ./config/docker:/var/www/html/config/docker
+      - ./plugins:/var/www/html/plugins
+      - ./storage/app:/var/www/html/storage/app
+      - ./storage/logs:/var/www/html/storage/logs
+      - ./storage/database.sqlite:/var/www/html/storage/database.sqlite
+      - ./themes:/var/www/html/themes
+
+  cron:
+    image: aspendigital/octobercms:latest
+    restart: always
+    init: true
+    command: [cron, -f]
+    environment:
+      - TZ=${TZ:-America/Denver}
+    volumes_from:
+      - web
+
+  worker:
+    image: aspendigital/octobercms:latest
+    restart: always
+    init: true
+    command: "php artisan queue:work redis --daemon --tries=3"
+    environment:
+      - TZ=${TZ:-America/Denver}
+    volumes_from:
+      - web
+
+  queue:
+    image: redis:4
+    restart: always
+    init: true
+    command: redis-server --tcp-backlog 128 --appendonly yes
+    environment:
+      - TZ=${TZ:-America/Denver}
+    volumes:
+      - ./storage/redis:/data
