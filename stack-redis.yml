@@ -1,0 +1,40 @@
+#http://play-with-docker.com/?stack=https://raw.githubusercontent.com/petehalverson/docker-octobercms-examples/master/stack-redis.yml
+version: '3.3'
+
+services:
+
+  web:
+    image: aspendigital/octobercms:latest
+    restart: always
+    ports:
+      - 80:80
+    volumes:
+      - media-volume:/var/www/html/storage/app/media
+      - uploads-volume:/var/www/html/storage/app/uploads
+      - plugins-volume:/var/www/html/plugins/aspendigital
+    environment:
+      - TZ=America/Denver
+      - QUEUE_DRIVER=redis
+      - SESSION_DRIVER=redis
+      - CACHE_STORE=redis
+
+  worker:
+    image: aspendigital/octobercms:latest
+    restart: always
+    command: "php artisan queue:work redis --tries=3"
+    volumes:
+      - media-volume:/var/www/html/storage/app/media
+      - uploads-volume:/var/www/html/storage/app/uploads
+      - plugins-volume:/var/www/html/plugins/aspendigital
+
+  redis:
+    image: redis:4
+    restart: always
+    command: redis-server --tcp-backlog 128
+    environment:
+      - TZ=America/Denver
+
+volumes:
+  media-volume:
+  uploads-volume:
+  plugins-volume:
