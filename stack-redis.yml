@@ -1,40 +1,28 @@
 #http://play-with-docker.com/?stack=https://raw.githubusercontent.com/petehalverson/docker-octobercms-examples/master/stack-redis.yml
 version: '3.3'
-
 services:
-
   web:
     image: aspendigital/octobercms:latest
-    restart: always
     ports:
       - 80:80
-    volumes:
-      - media-volume:/var/www/html/storage/app/media
-      - uploads-volume:/var/www/html/storage/app/uploads
-      - plugins-volume:/var/www/html/plugins/aspendigital
     environment:
-      - TZ=America/Denver
+      - CACHE_STORE=redis
+      - DB_DATABASE=octobercms
+      - DB_HOST=mysql
+      - DB_PASSWORD=root
+      - DB_TYPE=mysql
+      - DB_USERNAME=root
+      - INIT_OCTOBER=true
       - QUEUE_DRIVER=redis
       - SESSION_DRIVER=redis
-      - CACHE_STORE=redis
+    deploy:
+      replicas: 3
 
-  worker:
-    image: aspendigital/octobercms:latest
-    restart: always
-    command: "php artisan queue:work redis --tries=3"
-    volumes:
-      - media-volume:/var/www/html/storage/app/media
-      - uploads-volume:/var/www/html/storage/app/uploads
-      - plugins-volume:/var/www/html/plugins/aspendigital
+  mysql:
+    image: mysql:5.7
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=octobercms
 
   redis:
-    image: redis:4
-    restart: always
-    command: redis-server --tcp-backlog 128
-    environment:
-      - TZ=America/Denver
-
-volumes:
-  media-volume:
-  uploads-volume:
-  plugins-volume:
+    image: redis:5
